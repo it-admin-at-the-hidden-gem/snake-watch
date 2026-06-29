@@ -1,9 +1,9 @@
 # Snake Watch — AWS S3 Setup Guide
 
-This form runs in **demo mode** out of the box: photos and notes are saved in the
-browser on the device that submitted them (via `localStorage`), and the **Sightings**
-tab reads from there. That's enough to try the whole flow. To store reports in the
-cloud so every guest sees the same list, connect AWS S3 using the steps below.
+This form uploads photos and notes to **AWS S3** once you connect it (steps below).
+Until then it runs in **demo mode** — uploads are kept in memory for the current
+session only (nothing is written to the device). To store reports permanently and show
+a shared list across all guests, connect AWS S3 using the steps below.
 
 Everything here fits inside the **AWS Free Tier** for a low-traffic rental:
 - **S3:** 5 GB storage, 20k GET, 2k PUT / month (first 12 months)
@@ -435,14 +435,128 @@ server-written fields.
 
 ---
 
-## Reading sightings back from S3 (optional, recommended)
+## Step 10 — Shared sightings list (`GET /sightings`)
 
-The **Sightings** tab currently lists what's in `localStorage`. To show all guests the
-same cloud list, add a second route (e.g. `GET /sightings`) whose Lambda calls
-`ListObjectsV2` for the `*.json` records, returns them, and (optionally) presigned GET
-URLs for each photo. Then have the form fetch that list on load instead of reading
-`localStorage`. Drive the gallery badge off each record's server-written
-`locationStatus` / `exifVerified` fields. Ask and this can be wired up.
+So every guest sees **all** uploaded sightings (not just their own session), add a
+read endpoint. The Lambda lists the metadata records in S3, returns the most recent N as
+a JSON array, and includes a short-lived presigned URL for each photo. The form fetches
+it on load via `config.listEndpoint`.
+
+**Design notes**
+- It sorts by S3 `LastModified` (≈ upload time) and **caps the count** (default 100) so
+  a busy bucket never returns thousands of items or blows past free tier.
+- It already parses `from`, `to`, and `limit` **query-string params**, so you can turn on
+  **time-range filtering later** with zero code changes — just have the form append
+  `?from=2026-06-01&to=2026-07-01` to the endpoint. Today the form sends none, so it
+  returns the latest `DEFAULT_LIMIT`.
+
+### 10a. Create the function
+
+1. Lambda → **Create function** → name `snake-watch-list`, runtime **Node.js 20.x**.
+2. Its execution role needs `s3:ListBucket` + `s3:GetObject` (the Step 3b inline policy
+   already grants both — reuse it).
+3. Add an **API Gateway** route **`GET /sightings`** integrated with this function
+   (same HTTP API as `/upload`), and enable **CORS** for your Amplify domain.
+4. Set **`listEndpoint`** in the form's `config` to the route URL, e.g.
+   `https://7wstcuqfu5.execute-api.us-east-2.amazonaws.com/sightings`, then re-bundle and
+   redeploy.
+
+```js
+// index.mjs  — GET /sightings : shared, capped, time-range-ready
+import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+const s3 = new S3Client({ region: "us-east-2" });
+const BUCKET = "snake-watch-photos-356325055182-us-east-2-an";
+const PREFIX = "sightings/";
+const DEFAULT_LIMIT = 100;   // returned when no ?limit is given
+const MAX_LIMIT = 500;       // hard ceiling, protects free tier
+const URL_TTL = 3600;        // presigned photo URL lifetime (seconds)
+
+const buf = async (stream) => {
+  const chunks = []; for await (const c of stream) chunks.push(c);
+  return Buffer.concat(chunks);
+};
+
+export const handler = async (event) => {
+  const cors = {
+    "Access-Control-Allow-Origin": "*",            // or lock to your Amplify domain
+    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+  };
+  const reply = (statusCode, obj) => ({
+    statusCode, headers: { ...cors, "Content-Type": "application/json" },
+    body: JSON.stringify(obj),
+  });
+  if (event.requestContext?.http?.method === "OPTIONS") return { statusCode: 204, headers: cors };
+
+  try {
+    // --- query params (all optional; time-range is future-proofed here) ---
+    const q = event.queryStringParameters || {};
+    const limit = Math.min(parseInt(q.limit, 10) || DEFAULT_LIMIT, MAX_LIMIT);
+    const from = q.from ? new Date(q.from) : null;   // ISO date, e.g. 2026-06-01
+    const to   = q.to   ? new Date(q.to)   : null;
+    const inRange = (d) =>
+      (!from || d >= from) && (!to || d <= to);
+
+    // --- 1) list every metadata record (paginated) ---
+    let items = [], token;
+    do {
+      const page = await s3.send(new ListObjectsV2Command({
+        Bucket: BUCKET, Prefix: PREFIX, ContinuationToken: token,
+      }));
+      for (const o of page.Contents || []) {
+        if (!o.Key.endsWith(".json")) continue;            // skip the photos
+        if (!inRange(new Date(o.LastModified))) continue;  // time-range filter
+        items.push({ key: o.Key, modified: o.LastModified });
+      }
+      token = page.IsTruncated ? page.NextContinuationToken : undefined;
+    } while (token);
+
+    // --- 2) newest first, then cap ---
+    items.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+    items = items.slice(0, limit);
+
+    // --- 3) fetch each record + presign its photo ---
+    const records = await Promise.all(items.map(async ({ key }) => {
+      let rec = {};
+      try {
+        const r = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }));
+        rec = JSON.parse((await buf(r.Body)).toString());
+      } catch (e) { return null; }
+      if (rec.key) {
+        try {
+          rec.dataUrl = await getSignedUrl(
+            s3, new GetObjectCommand({ Bucket: BUCKET, Key: rec.key }),
+            { expiresIn: URL_TTL }
+          );
+        } catch (e) {}
+      }
+      rec.storage = "s3";
+      return rec;
+    }));
+
+    return reply(200, records.filter(Boolean));
+  } catch (err) {
+    console.error("LIST_ERROR", err?.name, err?.message);
+    return reply(500, { error: err?.message || "unknown" });
+  }
+};
+```
+
+The form's `loadFromCloud()` already expects exactly this shape — a JSON array of
+records, each with a `dataUrl` (here a presigned photo URL), `notes`, `capturedAt`,
+`distanceFt`, `lat`/`lng`, and `locationStatus`. Once `listEndpoint` is set, the
+Sightings tab (and its map view) renders the shared cloud list for everyone.
+
+> **Turning on time filtering later:** no Lambda change needed. Add date inputs to the
+> form and fetch `` `${listEndpoint}?from=${fromIso}&to=${toIso}&limit=200` ``. Tell me
+> when you want that UI and I'll wire it into the Sightings tab.
+
+> **Scaling note:** this reads one S3 object per returned record (fine for a rental's
+> volume and well within free tier). If the bucket ever holds tens of thousands of
+> sightings, move the records into **DynamoDB** (write them from the presign Lambda) and
+> query by a date index instead of listing S3 — the form contract stays identical.
 
 ## Cost guardrails
 
