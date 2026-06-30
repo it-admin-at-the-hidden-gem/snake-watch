@@ -1,0 +1,98 @@
+<svg viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FDF6E6"/><stop offset="1" stop-color="#F6EAD0"/></linearGradient>
+<radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#FBE3B3"/><stop offset="1" stop-color="#FBE3B3" stop-opacity="0"/></radialGradient>
+</defs>
+<rect x="0" y="0" width="850" height="1100" fill="url(#bg)"/>
+<circle cx="425" cy="370" r="300" fill="url(#sun)"/>
+<path d="M30 250 L160 110 L250 200 L360 90 L470 210 L560 120 L690 250 Z" fill="#CBD8C0" opacity="0.5"/>
+<path d="M30 250 L210 150 L330 240 L470 140 L610 250 L760 160 L820 250 Z" fill="#B7CBAF" opacity="0.45"/>
+<rect x="26" y="26" width="798" height="1048" rx="34" fill="none" stroke="#3F6B4E" stroke-width="9"/>
+<rect x="40" y="40" width="770" height="1020" rx="26" fill="none" stroke="#E0936A" stroke-width="4" stroke-dasharray="2 12" stroke-linecap="round"/>
+<text x="188.1" y="150.0" text-anchor="start" font-family="Poppins" font-weight="bold" font-size="50" fill="#2F5D43">Why We</text>
+<path d="M 436.9 150.6 C 412.3 132.4 427.6 113.8 436.9 128.5 C 446.3 113.8 461.6 132.4 436.9 150.6 Z" fill="#D1495B"/>
+<text x="473.9" y="150.0" text-anchor="start" font-family="Poppins" font-weight="bold" font-size="50" fill="#2F5D43">Snakes</text>
+<text x="425.0" y="188.0" text-anchor="middle" font-family="Poppins" font-style="italic" font-size="21" fill="#9A7B53">( yes, even the rattlers )</text>
+<g transform="translate(34,30) scale(0.92)">
+<path d="M595 440 A159 114 0 0 1 277 440 A137 99 0 0 0 551 440
+ A115 83 0 0 1 321 440 A93 67 0 0 0 507 440 A71 51 0 0 1 365 440 A50 36 0 0 0 465 440"
+ fill="none" stroke="#6E9A5A" stroke-width="46" stroke-linecap="round"/>
+<path d="M595 440 A159 114 0 0 1 277 440 A137 99 0 0 0 551 440 A115 83 0 0 1 321 440"
+ fill="none" stroke="#8CB873" stroke-width="13" stroke-linecap="round" opacity="0.5"/>
+<g fill="#3F6B4E">
+<path d="M436 315 l11 11 l-11 11 l-11 -11 z"/>
+<path d="M370 326 l10 10 l-10 10 l-10 -10 z"/>
+<path d="M502 326 l10 10 l-10 10 l-10 -10 z"/>
+<path d="M322 351 l9 9 l-9 9 l-9 -9 z"/>
+<path d="M550 351 l9 9 l-9 9 l-9 -9 z"/>
+<path d="M414 526 l12 12 l-12 12 l-12 -12 z"/>
+<path d="M348 515 l10 10 l-10 10 l-10 -10 z"/>
+<path d="M480 515 l10 10 l-10 10 l-10 -10 z"/>
+</g>
+<path d="M465 440 C 470 380 445 320 430 300" fill="none" stroke="#6E9A5A" stroke-width="44" stroke-linecap="round"/>
+<g stroke="#A9742F" stroke-width="3" fill="#E3B473" stroke-linejoin="round">
+<path d="M600 440 l26 -6 6 22 -26 6 z"/><path d="M624 414 l22 -6 6 20 -22 6 z"/>
+<path d="M646 392 l18 -5 6 17 -18 5 z"/><path d="M666 372 l14 -4 5 14 -14 4 z"/></g>
+<g stroke="#C99B57" stroke-width="3" fill="none" stroke-linecap="round">
+<path d="M690 360 q14 -6 18 -18"/><path d="M696 374 q16 -2 24 -10"/></g>
+<path d="M360 235 C 360 198 490 198 490 235 C 492 286 455 320 425 324 C 395 320 358 286 360 235 Z"
+ fill="#76A361" stroke="#5C8049" stroke-width="3"/>
+<path d="M372 222 q16 -10 34 -2" fill="none" stroke="#4D6B3D" stroke-width="5" stroke-linecap="round"/>
+<path d="M478 222 q-16 -10 -34 -2" fill="none" stroke="#4D6B3D" stroke-width="5" stroke-linecap="round"/>
+<circle cx="392" cy="242" r="20" fill="#fff"/><circle cx="458" cy="242" r="20" fill="#fff"/>
+<circle cx="396" cy="246" r="11" fill="#2B2B2B"/><circle cx="454" cy="246" r="11" fill="#2B2B2B"/>
+<circle cx="392" cy="241" r="4" fill="#fff"/><circle cx="450" cy="241" r="4" fill="#fff"/>
+<ellipse cx="372" cy="282" rx="16" ry="10" fill="#EFA6A0" opacity="0.8"/>
+<ellipse cx="478" cy="282" rx="16" ry="10" fill="#EFA6A0" opacity="0.8"/>
+<circle cx="418" cy="296" r="3" fill="#4D6B3D"/><circle cx="432" cy="296" r="3" fill="#4D6B3D"/>
+<path d="M404 304 Q425 322 446 304" fill="none" stroke="#4D6B3D" stroke-width="4" stroke-linecap="round"/>
+<path d="M425 320 L425 342 M425 342 L416 354 M425 342 L434 354" fill="none" stroke="#D1495B" stroke-width="4" stroke-linecap="round"/>
+</g>
+<g transform="translate(114,630)">
+<path d="M-20 12 q12 -22 0 -34 q-12 -12 4 -22 q14 -8 24 2" fill="none" stroke="#6E9A5A" stroke-width="11" stroke-linecap="round"/>
+<circle cx="10" cy="-44" r="9" fill="#76A361"/><circle cx="12" cy="-46" r="2.5" fill="#2B2B2B"/></g>
+<g transform="translate(322,632)">
+<ellipse cx="0" cy="6" rx="23" ry="20" fill="#AFAFB8"/>
+<circle cx="-14" cy="-12" r="11" fill="#C4C4CC"/><circle cx="14" cy="-12" r="11" fill="#C4C4CC"/>
+<circle cx="-14" cy="-12" r="5" fill="#E7B7BC"/><circle cx="14" cy="-12" r="5" fill="#E7B7BC"/>
+<circle cx="-6" cy="4" r="3" fill="#2B2B2B"/><circle cx="8" cy="4" r="3" fill="#2B2B2B"/>
+<circle cx="1" cy="12" r="3" fill="#E89AA0"/>
+<path d="M22 14 q22 8 14 26" fill="none" stroke="#AFAFB8" stroke-width="4" stroke-linecap="round"/></g>
+<g transform="translate(524,634)">
+<g stroke="#6E4427" stroke-width="3" stroke-linecap="round">
+<path d="M-17 -7 l-12 -7"/><path d="M-19 1 l-13 -1"/><path d="M-17 9 l-12 7"/>
+<path d="M17 -7 l12 -7"/><path d="M19 1 l13 -1"/><path d="M17 9 l12 7"/></g>
+<ellipse cx="0" cy="2" rx="19" ry="16" fill="#7A4B2B"/><circle cx="0" cy="-13" r="7" fill="#5A3520"/>
+<circle cx="-6" cy="0" r="2.5" fill="#A9743F"/><circle cx="5" cy="6" r="2" fill="#A9743F"/></g>
+<g transform="translate(726,632)">
+<g stroke="#D1495B" stroke-width="5" stroke-linecap="round">
+<path d="M0 0 L0 -25"/><path d="M0 0 L23 13"/><path d="M0 0 L-23 13"/><path d="M0 0 L19 -15"/><path d="M0 0 L-19 -15"/></g>
+<circle cx="0" cy="0" r="18" fill="#D1495B"/>
+<circle cx="-6" cy="-3" r="3.5" fill="#F4C4C9"/><circle cx="6" cy="5" r="3" fill="#F4C4C9"/><circle cx="4" cy="-7" r="2.5" fill="#F4C4C9"/></g>
+<text x="120.0" y="686.0" text-anchor="middle" font-family="Poppins" font-weight="bold" font-size="16" fill="#5A6B4E">snakes</text>
+<text x="322.0" y="686.0" text-anchor="middle" font-family="Poppins" font-weight="bold" font-size="16" fill="#5A6B4E">mice</text>
+<text x="524.0" y="686.0" text-anchor="middle" font-family="Poppins" font-weight="bold" font-size="16" fill="#5A6B4E">ticks</text>
+<text x="726.0" y="686.0" text-anchor="middle" font-family="Poppins" font-weight="bold" font-size="16" fill="#5A6B4E">R.M.S.F.</text>
+<g stroke="#C9803F" stroke-linecap="round"><line x1="205.0" y1="634.0" x2="230.0" y2="634.0" stroke-width="5"/><path d="M 237.0 634.0 L 227.0 628.0 L 227.0 640.0 Z" fill="#C9803F" stroke="none"/></g>
+<g stroke="#C9803F" stroke-linecap="round"><line x1="407.0" y1="634.0" x2="432.0" y2="634.0" stroke-width="5"/><path d="M 439.0 634.0 L 429.0 628.0 L 429.0 640.0 Z" fill="#C9803F" stroke="none"/></g>
+<g stroke="#C9803F" stroke-linecap="round"><line x1="609.0" y1="634.0" x2="634.0" y2="634.0" stroke-width="5"/><path d="M 641.0 634.0 L 631.0 628.0 L 631.0 640.0 Z" fill="#C9803F" stroke="none"/></g>
+<rect x="66" y="708" width="718" height="282" rx="22" fill="#FFFFFF" opacity="0.62"/>
+<text x="425.0" y="744.0" text-anchor="middle" font-family="Poppins" font-weight="bold" font-size="20" fill="#2F5D43">Meet your scaly neighbor — quietly keeping you safe.</text>
+<text x="425.0" y="780.0" text-anchor="middle" font-family="Poppins" font-size="18" fill="#4A3B2A">Here’s the deal: mice are basically tick taxis, and</text>
+<text x="425.0" y="806.0" text-anchor="middle" font-family="Poppins" font-size="18" fill="#4A3B2A">the ticks they carry can spread</text>
+<text x="425.0" y="840.0" text-anchor="middle" font-family="Poppins" font-weight="bold" font-size="23" fill="#C0392B">Rocky Mountain Spotted Fever.</text>
+<text x="425.0" y="872.0" text-anchor="middle" font-family="Poppins" font-size="18" fill="#4A3B2A">Our resident rattlers love a good mouse snack — and every</text>
+<text x="425.0" y="898.0" text-anchor="middle" font-family="Poppins" font-size="18" fill="#4A3B2A">mouse they eat is a whole crew of ticks that never bites you.</text>
+<text x="93.8" y="940.0" text-anchor="start" font-family="Poppins" font-weight="bold" font-size="21" fill="#2F5D43">More snakes</text>
+<g stroke="#C9803F" stroke-linecap="round"><line x1="241.6" y1="933.0" x2="258.6" y2="933.0" stroke-width="5"/><path d="M 265.6 933.0 L 255.6 927.0 L 255.6 939.0 Z" fill="#C9803F" stroke="none"/></g>
+<text x="276.6" y="940.0" text-anchor="start" font-family="Poppins" font-weight="bold" font-size="21" fill="#2F5D43">fewer mice</text>
+<g stroke="#C9803F" stroke-linecap="round"><line x1="406.7" y1="933.0" x2="423.7" y2="933.0" stroke-width="5"/><path d="M 430.7 933.0 L 420.7 927.0 L 420.7 939.0 Z" fill="#C9803F" stroke="none"/></g>
+<text x="441.7" y="940.0" text-anchor="start" font-family="Poppins" font-weight="bold" font-size="21" fill="#2F5D43">fewer ticks</text>
+<g stroke="#C9803F" stroke-linecap="round"><line x1="569.9" y1="933.0" x2="586.9" y2="933.0" stroke-width="5"/><path d="M 593.9 933.0 L 583.9 927.0 L 583.9 939.0 Z" fill="#C9803F" stroke="none"/></g>
+<text x="604.9" y="940.0" text-anchor="start" font-family="Poppins" font-weight="bold" font-size="21" fill="#2F5D43">fewer worries.</text>
+<text x="425.0" y="974.0" text-anchor="middle" font-family="Poppins" font-style="italic" font-size="15" fill="#80704F">Fun fact: one rattlesnake can clear out thousands of ticks a year — just by being a snake.</text>
+<text x="425.0" y="1024.0" text-anchor="middle" font-family="Poppins" font-weight="bold" font-size="17" fill="#2F5D43">So if you spot one of our local rattlers, give a little wave — and say thanks!</text>
+<text x="425.0" y="1051.0" text-anchor="middle" font-family="Poppins" font-size="13" fill="#9A7B53">Please admire from a respectful distance. Never touch or handle — give them space, and they’ll return the favor.</text>
+</svg>

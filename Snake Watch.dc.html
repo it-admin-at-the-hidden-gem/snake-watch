@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" fill="oklch(0.33 0.04 150)"/>
+  <rect x="30" y="30" width="40" height="40" rx="9" fill="oklch(0.7 0.11 90)" transform="rotate(45 50 50)"/>
+</svg>
+</template>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;1,500&family=Mulish:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: oklch(0.96 0.013 92); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .leaflet-container { font-family: 'DM Mono', monospace; }
+  textarea, input { font-family: 'Mulish', sans-serif; }
+  textarea:focus, input:focus { outline: 2px solid oklch(0.46 0.055 150 / 0.4); outline-offset: 1px; }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: oklch(0.96 0.013 92); font-family: 'Mulish', sans-serif; color: oklch(0.27 0.018 150); padding: 22px 16px 60px; background-image: radial-gradient(oklch(0.5 0.03 150 / 0.04) 1px, transparent 1px); background-size: 22px 22px;">
+  <div style="max-width: 560px; margin: 0 auto;">
+
+    <header style="display: flex; align-items: center; gap: 13px; margin-bottom: 18px; padding: 2px;">
+      <div style="width: 42px; height: 42px; border-radius: 12px; background: oklch(0.33 0.04 150); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <div style="width: 15px; height: 15px; background: oklch(0.7 0.11 90); transform: rotate(45deg); border-radius: 3px;"></div>
+      </div>
+      <div>
+        <h1 style="margin: 0; font-family: 'Spectral', serif; font-weight: 600; font-size: 24px; line-height: 1; letter-spacing: -0.01em; color: oklch(0.27 0.018 150);">Snake Watch</h1>
+        <p style="margin: 3px 0 0; font-size: 12.5px; color: oklch(0.5 0.02 150); font-weight: 500;">Guest sighting log · help others stay aware</p>
+      </div>
+    </header>
+
+    <nav style="display: flex; gap: 4px; background: oklch(0.92 0.014 92); padding: 4px; border-radius: 12px; margin-bottom: 18px;">
+      <button onClick="{{ setReport }}" style="{{ reportTabStyle }}">Report</button>
+      <button onClick="{{ setSightings }}" style="{{ sightingsTabStyle }}">Sightings</button>
+    </nav>
+
+    <!-- ============ REPORT TAB ============ -->
+    <sc-if value="{{ isReport }}" hint-placeholder-val="{{ true }}">
+      <div>
+
+        <!-- success state -->
+        <sc-if value="{{ submitted }}" hint-placeholder-val="{{ false }}">
+          <div style="background: oklch(0.99 0.008 92); border: 1px solid oklch(0.9 0.014 92); border-radius: 16px; padding: 36px 26px; text-align: center; animation: fadeUp .3s ease;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: oklch(0.93 0.04 150); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+              <div style="width: 16px; height: 28px; border-right: 3px solid oklch(0.4 0.07 150); border-bottom: 3px solid oklch(0.4 0.07 150); transform: rotate(45deg); margin-top: -6px;"></div>
+            </div>
+            <h2 style="margin: 0 0 8px; font-family: 'Spectral', serif; font-weight: 600; font-size: 22px;">Sighting logged</h2>
+            <p style="margin: 0 0 22px; font-size: 14px; color: oklch(0.5 0.02 150); line-height: 1.5;">Thank you — your report helps the next guest stay safe.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+              <button onClick="{{ reset }}" style="padding: 12px 20px; border: none; border-radius: 11px; background: oklch(0.46 0.055 150); color: oklch(0.99 0.01 150); font-family: 'Mulish', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;">Report another</button>
+              <button onClick="{{ setSightings }}" style="padding: 12px 20px; border: 1px solid oklch(0.85 0.02 150); border-radius: 11px; background: transparent; color: oklch(0.33 0.04 150); font-family: 'Mulish', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;">View sightings</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- form -->
+        <sc-if value="{{ notSubmitted }}" hint-placeholder-val="{{ true }}">
+          <div>
+
+            <div style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 20px; background: oklch(0.94 0.025 90); margin-bottom: 14px;">
+              <span style="width: 7px; height: 7px; border-radius: 50%; background: oklch(0.62 0.13 60); display: inline-block;"></span>
+              <span style="font-size: 11.5px; font-weight: 600; color: oklch(0.45 0.05 60); font-family: 'DM Mono', monospace;">{{ storageMode }}</span>
+            </div>
+
+            <!-- upload zone -->
+            <sc-if value="{{ showUploadZone }}" hint-placeholder-val="{{ true }}">
+              <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px 24px; background: oklch(0.99 0.008 92); border: 2px dashed oklch(0.82 0.025 150); border-radius: 16px; cursor: pointer; text-align: center;">
+                <input type="file" accept="image/*" onChange="{{ onFileChange }}" style="display: none;" />
+                <div style="width: 52px; height: 52px; border-radius: 14px; background: oklch(0.93 0.03 150); display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 22px; height: 18px; border: 2.5px solid oklch(0.4 0.07 150); border-radius: 5px; position: relative;">
+                    <div style="position: absolute; width: 8px; height: 8px; border-radius: 50%; border: 2.5px solid oklch(0.4 0.07 150); top: 50%; left: 50%; transform: translate(-50%,-50%);"></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size: 16px; font-weight: 700; color: oklch(0.3 0.03 150); margin-bottom: 4px;">Add a snake photo</div>
+                  <div style="font-size: 13px; color: oklch(0.52 0.02 150); line-height: 1.45; max-width: 300px;">Use a photo taken at the property with location turned on. We read the GPS automatically.</div>
+                </div>
+              </label>
+            </sc-if>
+
+            <!-- photo preview + analysis -->
+            <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 14px; animation: fadeUp .3s ease;">
+
+                <div style="position: relative; border-radius: 16px; overflow: hidden; background: oklch(0.3 0.02 150);">
+                  <img ref="{{ photoImgRef }}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="snake sighting" style="display: block; width: 100%; height: 320px; max-height: 60vh; object-fit: cover; background-color: oklch(0.3 0.02 150);" />
+                  <button onClick="{{ removePhoto }}" style="position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border: none; border-radius: 50%; background: oklch(0.2 0.01 150 / 0.6); color: #fff; font-size: 16px; cursor: pointer; backdrop-filter: blur(4px); line-height: 1;">×</button>
+                </div>
+
+                <!-- parsing -->
+                <sc-if value="{{ parsing }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; align-items: center; gap: 11px; padding: 14px 16px; background: oklch(0.99 0.008 92); border: 1px solid oklch(0.9 0.014 92); border-radius: 12px;">
+                    <div style="width: 18px; height: 18px; border: 2.5px solid oklch(0.86 0.02 150); border-top-color: oklch(0.46 0.055 150); border-radius: 50%; animation: spin .7s linear infinite;"></div>
+                    <span style="font-size: 13.5px; font-weight: 600; color: oklch(0.45 0.02 150);">Reading photo location & date…</span>
+                  </div>
+                </sc-if>
+
+                <!-- PASS banner -->
+                <sc-if value="{{ showPass }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; gap: 12px; padding: 14px 16px; background: oklch(0.95 0.04 150); border: 1px solid oklch(0.82 0.07 150); border-radius: 12px;">
+                    <div style="width: 22px; height: 22px; border-radius: 50%; background: oklch(0.46 0.08 150); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                      <div style="width: 6px; height: 11px; border-right: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: rotate(45deg); margin-top: -2px;"></div>
+                    </div>
+                    <div>
+                      <div style="font-size: 14px; font-weight: 700; color: oklch(0.34 0.06 150);">Inside the reporting zone</div>
+                      <div style="font-size: 12.5px; color: oklch(0.42 0.04 150); margin-top: 2px; font-family: 'DM Mono', monospace;">{{ distanceText }}</div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <!-- FAIL: out of range -->
+                <sc-if value="{{ showFailRange }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; gap: 12px; padding: 14px 16px; background: oklch(0.95 0.045 55); border: 1px solid oklch(0.82 0.09 55); border-radius: 12px;">
+                    <div style="width: 22px; height: 22px; border-radius: 50%; background: oklch(0.55 0.13 45); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; line-height: 1;">!</div>
+                    <div>
+                      <div style="font-size: 14px; font-weight: 700; color: oklch(0.43 0.1 45);">Outside the 1,000 ft zone</div>
+                      <div style="font-size: 12.5px; color: oklch(0.46 0.08 45); margin-top: 3px; line-height: 1.45;">You can still submit — this report will be tagged <strong>location unverified</strong> so others know to take it with a grain of salt. <span style="font-family: 'DM Mono', monospace;">{{ distanceText }}</span></div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <!-- FAIL: no gps -->
+                <sc-if value="{{ showNoGps }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; gap: 12px; padding: 14px 16px; background: oklch(0.95 0.045 55); border: 1px solid oklch(0.82 0.09 55); border-radius: 12px;">
+                    <div style="width: 22px; height: 22px; border-radius: 50%; background: oklch(0.55 0.13 45); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; line-height: 1;">!</div>
+                    <div>
+                      <div style="font-size: 14px; font-weight: 700; color: oklch(0.43 0.1 45);">No location found in this photo</div>
+                      <div style="font-size: 12.5px; color: oklch(0.46 0.08 45); margin-top: 3px; line-height: 1.45;">You can still submit — it'll be tagged <strong>location unverified</strong>. To verify the spot, turn your camera's location on and take a fresh photo at the property. (Screenshots and shared/downloaded images usually have no GPS.)</div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <!-- coord readout -->
+                <sc-if value="{{ showReadout }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: oklch(0.9 0.014 92); border: 1px solid oklch(0.9 0.014 92); border-radius: 12px; overflow: hidden; font-family: 'DM Mono', monospace;">
+                    <div style="background: oklch(0.99 0.008 92); padding: 11px 14px;">
+                      <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: oklch(0.6 0.015 150); margin-bottom: 3px;">Latitude</div>
+                      <div style="font-size: 14px; font-weight: 500; color: oklch(0.3 0.02 150);">{{ latText }}</div>
+                    </div>
+                    <div style="background: oklch(0.99 0.008 92); padding: 11px 14px;">
+                      <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: oklch(0.6 0.015 150); margin-bottom: 3px;">Longitude</div>
+                      <div style="font-size: 14px; font-weight: 500; color: oklch(0.3 0.02 150);">{{ lngText }}</div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <!-- map -->
+                <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
+                  <div ref="{{ reportMapRef }}" style="height: 240px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid oklch(0.9 0.014 92); z-index: 0;"></div>
+                </sc-if>
+
+                <!-- date/time + notes + submit -->
+                <sc-if value="{{ showForm }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 2px;">
+
+                    <div>
+                      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;">
+                        <label style="font-size: 13px; font-weight: 700; color: oklch(0.34 0.03 150);">When was it taken?</label>
+                        <sc-if value="{{ dateFromPhoto }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size: 11px; font-weight: 600; color: oklch(0.46 0.06 150); background: oklch(0.93 0.03 150); padding: 3px 8px; border-radius: 6px; font-family: 'DM Mono', monospace;">from photo</span>
+                        </sc-if>
+                        <sc-if value="{{ dateNeedsEntry }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size: 11px; font-weight: 600; color: oklch(0.5 0.08 55); background: oklch(0.94 0.04 55); padding: 3px 8px; border-radius: 6px; font-family: 'DM Mono', monospace;">enter manually</span>
+                        </sc-if>
+                      </div>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="date" value="{{ manualDate }}" onChange="{{ setDate }}" style="padding: 12px 13px; border: 1px solid oklch(0.85 0.02 150); border-radius: 11px; background: oklch(0.99 0.008 92); font-size: 14px; font-weight: 600; color: oklch(0.3 0.02 150);" />
+                        <input type="time" value="{{ manualTime }}" onChange="{{ setTime }}" style="padding: 12px 13px; border: 1px solid oklch(0.85 0.02 150); border-radius: 11px; background: oklch(0.99 0.008 92); font-size: 14px; font-weight: 600; color: oklch(0.3 0.02 150);" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style="display: block; font-size: 13px; font-weight: 700; color: oklch(0.34 0.03 150); margin-bottom: 8px;">Notes for other guests</label>
+                      <textarea value="{{ notes }}" onChange="{{ setNotes }}" placeholder="Where exactly did you see it? Color, size, and what it was doing — anything that helps others stay clear." rows="4" style="width: 100%; padding: 13px; border: 1px solid oklch(0.85 0.02 150); border-radius: 11px; background: oklch(0.99 0.008 92); font-size: 14px; color: oklch(0.3 0.02 150); resize: vertical; line-height: 1.5;"></textarea>
+                    </div>
+
+                    <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size: 12.5px; color: oklch(0.5 0.1 45); background: oklch(0.95 0.04 55); border: 1px solid oklch(0.85 0.07 55); padding: 10px 13px; border-radius: 10px;">{{ lastError }}</div>
+                    </sc-if>
+
+                    <div>
+                      <button onClick="{{ submit }}" disabled="{{ submitDisabled }}" style="{{ submitBtnStyle }}">{{ submitLabel }}</button>
+                      <sc-if value="{{ submitDisabled }}" hint-placeholder-val="{{ false }}">
+                        <p style="margin: 9px 0 0; text-align: center; font-size: 12.5px; color: oklch(0.55 0.02 150); font-weight: 600;">{{ reason }}</p>
+                      </sc-if>
+                    </div>
+
+                  </div>
+                </sc-if>
+
+              </div>
+            </sc-if>
+
+          </div>
+        </sc-if>
+
+      </div>
+    </sc-if>
+
+    <!-- ============ SIGHTINGS TAB ============ -->
+    <sc-if value="{{ isSightings }}" hint-placeholder-val="{{ false }}">
+      <div style="animation: fadeUp .25s ease;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+          <span style="font-size: 13px; font-weight: 700; color: oklch(0.4 0.03 150); font-family: 'DM Mono', monospace;">{{ recordCount }} logged</span>
+          <div style="display: flex; gap: 4px; background: oklch(0.92 0.014 92); padding: 4px; border-radius: 10px; width: 188px;">
+            <button onClick="{{ setGalleryGrid }}" style="{{ galleryGridStyle }}">Gallery</button>
+            <button onClick="{{ setGalleryMapView }}" style="{{ galleryMapStyle }}">Map</button>
+          </div>
+        </div>
+
+        <sc-if value="{{ hasRecords }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <!-- gallery grid -->
+            <sc-if value="{{ isGalleryGrid }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <sc-for list="{{ galleryItems }}" as="item" hint-placeholder-count="0">
+                  <div style="display: flex; gap: 13px; background: oklch(0.99 0.008 92); border: 1px solid oklch(0.9 0.014 92); border-radius: 14px; padding: 12px; align-items: stretch;">
+                    <img ref="{{ item.imgRef }}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onClick="{{ item.open }}" alt="sighting" style="width: 96px; height: 96px; object-fit: cover; border-radius: 10px; cursor: pointer; flex-shrink: 0; background-color: oklch(0.3 0.02 150);" />
+                    <div style="display: flex; flex-direction: column; min-width: 0; flex: 1;">
+                      <div style="display: flex; align-items: center; gap: 7px; margin-bottom: 5px; flex-wrap: wrap;">
+                        <span style="font-size: 12px; font-weight: 700; color: oklch(0.34 0.03 150); font-family: 'DM Mono', monospace;">{{ item.dateText }}</span>
+                      </div>
+                      <div style="display: flex; gap: 6px; margin-bottom: 7px; flex-wrap: wrap;">
+                        <span style="{{ item.verifyStyle }}">{{ item.verifyText }}</span>
+                        <span style="font-size: 10.5px; font-weight: 600; color: oklch(0.4 0.06 150); background: oklch(0.93 0.03 150); padding: 2px 7px; border-radius: 6px; font-family: 'DM Mono', monospace;">{{ item.distText }}</span>
+                        <span style="font-size: 10.5px; font-weight: 600; color: oklch(0.45 0.05 60); background: oklch(0.94 0.025 70); padding: 2px 7px; border-radius: 6px; font-family: 'DM Mono', monospace;">{{ item.storageText }}</span>
+                      </div>
+                      <p style="margin: 0; font-size: 13px; color: oklch(0.42 0.02 150); line-height: 1.45; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">{{ item.notes }}</p>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <!-- map view -->
+            <sc-if value="{{ isGalleryMap }}" hint-placeholder-val="{{ false }}">
+              <div ref="{{ galleryMapRef }}" style="height: 380px; width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid oklch(0.9 0.014 92); z-index: 0;"></div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noRecords }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align: center; padding: 50px 24px; background: oklch(0.99 0.008 92); border: 1px dashed oklch(0.85 0.02 150); border-radius: 16px;">
+            <div style="width: 46px; height: 46px; border-radius: 13px; background: oklch(0.93 0.025 150); margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;">
+              <div style="width: 13px; height: 13px; background: oklch(0.6 0.04 150); transform: rotate(45deg); border-radius: 3px;"></div>
+            </div>
+            <div style="font-size: 15px; font-weight: 700; color: oklch(0.4 0.03 150); margin-bottom: 5px;">No sightings yet</div>
+            <div style="font-size: 13px; color: oklch(0.55 0.02 150);">Reports you submit appear here. To show a shared list across all guests, connect a cloud list endpoint (see setup).</div>
+          </div>
+        </sc-if>
+
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- lightbox -->
+  <sc-if value="{{ hasLightbox }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeLightbox }}" style="position: fixed; inset: 0; background: oklch(0.18 0.01 150 / 0.85); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 1000; backdrop-filter: blur(3px);">
+      <img ref="{{ lightboxImgRef }}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="sighting" style="max-width: 100%; max-height: 100%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);" />
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  config = {
+    target: { lat: 34.53660217926452, lng: -93.50081788334796 },
+    radiusFeet: 1000,
+    uploadEndpoint: 'https://7wstcuqfu5.execute-api.us-east-2.amazonaws.com/upload', // POST endpoint returning { uploadUrl, key }
+    listEndpoint: 'https://7wstcuqfu5.execute-api.us-east-2.amazonaws.com/sightings', // GET endpoint returning a shared array of records
+    region: 'us-east-2',
+    bucket: 'snake-watch-photos-356325055182-us-east-2-an',
+  };
+
+  state = {
+    tab: 'report',
+    galleryView: 'gallery',
+    photo: null,
+    exif: null,
+    parsing: false,
+    manualDate: '',
+    manualTime: '',
+    dateSource: null,
+    notes: '',
+    records: [],
+    submitting: false,
+    submitted: false,
+    lastError: '',
+    lightbox: null,
+  };
+
+  componentDidMount() {
+    // Records are kept in memory for the current session only. The shared,
+    // cross-guest list comes from the cloud (see config.listEndpoint below).
+    if (this.config.listEndpoint) this.loadFromCloud();
+  }
+
+  async loadFromCloud() {
+    try {
+      const res = await fetch(this.config.listEndpoint);
+      if (!res.ok) return;
+      const list = await res.json();
+      if (Array.isArray(list)) this.setState({ records: list });
+    } catch (e) {}
+  }
+
+  setImgSrc(node, url) {
+    if (node && url && node.getAttribute('src') !== url) node.src = url;
+  }
+
+  distanceFeet(lat, lng) {
+    const R = 6371000, toRad = (d) => d * Math.PI / 180, t = this.config.target;
+    const dLat = toRad(lat - t.lat), dLng = toRad(lng - t.lng);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(t.lat)) * Math.cos(toRad(lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a)) * 3.28084;
+  }
+
+  pad(n) { return String(n).padStart(2, '0'); }
+  fmtDate(d) { return d.getFullYear() + '-' + this.pad(d.getMonth() + 1) + '-' + this.pad(d.getDate()); }
+  fmtTime(d) { return this.pad(d.getHours()) + ':' + this.pad(d.getMinutes()); }
+
+  async extractGps(file) {
+    const ok = (la, ln) => Number.isFinite(la) && Number.isFinite(ln) && !(la === 0 && ln === 0)
+      && Math.abs(la) <= 90 && Math.abs(ln) <= 180;
+    // 1) high-level helper
+    try {
+      const g = await exifr.gps(file);
+      if (g && ok(g.latitude, g.longitude)) return { lat: g.latitude, lng: g.longitude };
+    } catch (e) {}
+    // 2) full parse with translated GPS block
+    try {
+      const o = await exifr.parse(file, { gps: true, translateValues: true });
+      if (o && ok(o.latitude, o.longitude)) return { lat: o.latitude, lng: o.longitude };
+    } catch (e) {}
+    // 3) raw GPS tags -> manual degrees/minutes/seconds conversion
+    try {
+      const t = await exifr.parse(file, { gps: true, translateValues: false, reviveValues: false });
+      if (t && t.GPSLatitude && t.GPSLongitude) {
+        const dec = (v) => Array.isArray(v) ? (+v[0] || 0) + (+v[1] || 0) / 60 + (+v[2] || 0) / 3600 : +v;
+        let lat = dec(t.GPSLatitude), lng = dec(t.GPSLongitude);
+        const latRef = String(t.GPSLatitudeRef || 'N').toUpperCase();
+        const lngRef = String(t.GPSLongitudeRef || 'E').toUpperCase();
+        if (latRef[0] === 'S') lat = -Math.abs(lat);
+        if (lngRef[0] === 'W') lng = -Math.abs(lng);
+        if (ok(lat, lng)) return { lat, lng };
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  onFileChange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    this.setState({ parsing: true, photo: null, exif: null, submitted: false, lastError: '' });
+    try {
+      const dataUrl = await this.downscale(file);
+      let coords = null, dateObj = null;
+      if (typeof exifr !== 'undefined') {
+        coords = await this.extractGps(file);
+        try {
+          const meta = await exifr.parse(file, ['DateTimeOriginal', 'CreateDate', 'ModifyDate']);
+          if (meta) dateObj = meta.DateTimeOriginal || meta.CreateDate || meta.ModifyDate || null;
+        } catch (err) {}
+      }
+      let exif = { lat: null, lng: null, distanceFt: null, withinRange: false };
+      if (coords) {
+        const distanceFt = this.distanceFeet(coords.lat, coords.lng);
+        exif = { lat: coords.lat, lng: coords.lng, distanceFt, withinRange: distanceFt <= this.config.radiusFeet };
+      }
+      const upd = { photo: { dataUrl, name: file.name, file, type: file.type || 'image/jpeg' }, exif, parsing: false };
+      if (dateObj && !isNaN(dateObj.getTime())) {
+        upd.manualDate = this.fmtDate(dateObj);
+        upd.manualTime = this.fmtTime(dateObj);
+        upd.dateSource = 'photo';
+      } else {
+        upd.dateSource = 'manual';
+      }
+      this.setState(upd, () => this.refreshReportMap());
+    } catch (err) {
+      this.setState({ parsing: false, lastError: 'Could not read that image. Please try another photo.' });
+    }
+  };
+
+  downscale(file, max = 1280, q = 0.82) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, max / Math.max(w, h));
+        w = Math.round(w * scale); h = Math.round(h * scale);
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        try { resolve(c.toDataURL('image/jpeg', q)); } catch (err) { reject(err); }
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('img')); };
+      img.src = url;
+    });
+  }
+
+  removePhoto = () => this.setState({ photo: null, exif: null, lastError: '', dateSource: null }, () => this.refreshReportMap());
+
+  reportMapRef = (node) => {
+    if (node) { this.initMap(node, 'report'); }
+    else if (this.reportMap) { this.reportMap.remove(); this.reportMap = null; }
+  };
+  galleryMapRef = (node) => {
+    if (node) { this.initMap(node, 'gallery'); }
+    else if (this.galleryMap) { this.galleryMap.remove(); this.galleryMap = null; }
+  };
+
+  initMap(node, which, attempt = 0) {
+    if (typeof L === 'undefined') {
+      if (attempt < 25) setTimeout(() => this.initMap(node, which, attempt + 1), 150);
+      return;
+    }
+    if (which === 'report' && this.reportMap) return;
+    if (which === 'gallery' && this.galleryMap) return;
+    const t = this.config.target;
+    const map = L.map(node, { zoomControl: true, scrollWheelZoom: false, attributionControl: true });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+    const radiusM = this.config.radiusFeet / 3.28084;
+    L.circle([t.lat, t.lng], { radius: radiusM, color: 'oklch(0.46 0.06 150)', weight: 1.5, fillColor: 'oklch(0.46 0.06 150)', fillOpacity: 0.08 }).addTo(map);
+    L.circleMarker([t.lat, t.lng], { radius: 6, color: '#fff', weight: 2, fillColor: 'oklch(0.33 0.04 150)', fillOpacity: 1 }).addTo(map).bindTooltip('The rental');
+    map.setView([t.lat, t.lng], 16);
+    if (which === 'report') { this.reportMap = map; this._reportLayer = L.layerGroup().addTo(map); this.refreshReportMap(); }
+    else { this.galleryMap = map; this._galleryLayer = L.layerGroup().addTo(map); this.refreshGalleryMap(); }
+    setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 250);
+  }
+
+  refreshReportMap() {
+    if (!this.reportMap || !this._reportLayer) return;
+    this._reportLayer.clearLayers();
+    const ex = this.state.exif, t = this.config.target;
+    if (ex && Number.isFinite(ex.lat) && Number.isFinite(ex.lng)) {
+      const color = ex.withinRange ? 'oklch(0.46 0.06 150)' : 'oklch(0.55 0.13 45)';
+      L.circleMarker([ex.lat, ex.lng], { radius: 8, color: '#fff', weight: 2, fillColor: color, fillOpacity: 1 }).addTo(this._reportLayer).bindTooltip('Photo location');
+      try { this.reportMap.fitBounds(L.latLngBounds([[ex.lat, ex.lng], [t.lat, t.lng]]).pad(0.6)); } catch (e) {}
+    } else {
+      this.reportMap.setView([t.lat, t.lng], 16);
+    }
+    setTimeout(() => { try { this.reportMap.invalidateSize(); } catch (e) {} }, 120);
+  }
+
+  refreshGalleryMap() {
+    if (!this.galleryMap || !this._galleryLayer) return;
+    this._galleryLayer.clearLayers();
+    const pts = [], t = this.config.target;
+    this.state.records.forEach((r) => {
+      if (Number.isFinite(r.lat) && Number.isFinite(r.lng)) {
+        L.circleMarker([r.lat, r.lng], { radius: 7, color: '#fff', weight: 2, fillColor: 'oklch(0.55 0.13 45)', fillOpacity: 1 })
+          .addTo(this._galleryLayer).bindTooltip(r.notes ? r.notes.slice(0, 50) : 'Sighting');
+        pts.push([r.lat, r.lng]);
+      }
+    });
+    pts.push([t.lat, t.lng]);
+    if (pts.length > 1) { try { this.galleryMap.fitBounds(L.latLngBounds(pts).pad(0.35)); } catch (e) {} }
+    setTimeout(() => { try { this.galleryMap.invalidateSize(); } catch (e) {} }, 120);
+  }
+
+  setTab = (tab) => this.setState({ tab }, () => { if (tab === 'sightings' && this.state.galleryView === 'map') setTimeout(() => this.refreshGalleryMap(), 60); });
+  setGalleryView = (galleryView) => this.setState({ galleryView }, () => { if (galleryView === 'map') setTimeout(() => this.refreshGalleryMap(), 60); });
+  setNotes = (e) => this.setState({ notes: e.target.value });
+  setDate = (e) => this.setState({ manualDate: e.target.value });
+  setTime = (e) => this.setState({ manualTime: e.target.value });
+
+  dataURLtoBlob(dataUrl) {
+    const [meta, b64] = dataUrl.split(',');
+    const mime = meta.match(/:(.*?);/)[1];
+    const bin = atob(b64), arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  async uploadToS3(record, file) {
+    // Upload the ORIGINAL file bytes (EXIF intact) so the server can re-verify GPS.
+    // Fall back to the downscaled preview only if the original is unavailable.
+    const blob = file || this.dataURLtoBlob(record.dataUrl);
+    const contentType = (file && file.type) || 'image/jpeg';
+    const extMap = { 'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png', 'image/heic': 'heic', 'image/heif': 'heif', 'image/webp': 'webp' };
+    const ext = extMap[contentType] || 'jpg';
+    const key = 'sightings/' + record.id + '.' + ext;
+    const res = await fetch(this.config.uploadEndpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, contentType, metadata: {
+        notes: record.notes, lat: record.lat, lng: record.lng,
+        capturedAt: record.capturedAt, distanceFt: record.distanceFt,
+        locationStatus: record.locationStatus, locationVerified: record.locationVerified,
+      } }),
+    });
+    if (!res.ok) throw new Error('presign failed');
+    const { uploadUrl } = await res.json();
+    const put = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: blob });
+    if (!put.ok) throw new Error('upload failed');
+    return key;
+  }
+
+  locationStatusOf(ex) {
+    if (!ex || !Number.isFinite(ex.lat) || !Number.isFinite(ex.lng)) return 'unverified';
+    return ex.withinRange ? 'verified' : 'out_of_range';
+  }
+
+  submit = async () => {
+    const s = this.state;
+    if (!s.photo || !s.manualDate || !s.manualTime) return;
+    this.setState({ submitting: true, lastError: '' });
+    const hasCoords = !!(s.exif && Number.isFinite(s.exif.lat) && Number.isFinite(s.exif.lng));
+    const locationStatus = this.locationStatusOf(s.exif);
+    const record = {
+      id: 'sn_' + Date.now().toString(36),
+      dataUrl: s.photo.dataUrl,
+      lat: hasCoords ? s.exif.lat : null, lng: hasCoords ? s.exif.lng : null,
+      distanceFt: hasCoords ? Math.round(s.exif.distanceFt) : null,
+      locationStatus, locationVerified: locationStatus === 'verified',
+      capturedAt: s.manualDate + 'T' + s.manualTime,
+      notes: s.notes.trim(),
+      dateSource: s.dateSource,
+      uploadedAt: new Date().toISOString(),
+      storage: this.config.uploadEndpoint ? 's3' : 'local',
+    };
+    let warn = '';
+    try {
+      if (this.config.uploadEndpoint) record.s3Key = await this.uploadToS3(record, s.photo.file);
+    } catch (err) {
+      warn = 'Cloud upload failed — check your endpoint and CORS. Showing in this session only.';
+      record.storage = 'session';
+    }
+    const records = [record, ...this.state.records];
+    this.setState({ records, submitting: false, submitted: true, lastError: warn });
+  };
+
+  reset = () => this.setState({ photo: null, exif: null, notes: '', manualDate: '', manualTime: '', dateSource: null, submitted: false, lastError: '' });
+
+  openLightbox = (url) => this.setState({ lightbox: url });
+  closeLightbox = () => this.setState({ lightbox: null });
+
+  renderVals() {
+    const s = this.state, ex = s.exif;
+    const hasPhoto = !!s.photo;
+    const hasGps = !!(ex && ex.lat != null);
+    const withinRange = !!(ex && ex.withinRange);
+    const distanceText = ex && ex.distanceFt != null ? Math.round(ex.distanceFt).toLocaleString() + ' ft from the house' : '';
+    const reason = !hasPhoto ? 'Add a photo to begin'
+      : s.parsing ? 'Reading photo…'
+      : (!s.manualDate || !s.manualTime) ? 'Enter the date and time'
+      : '';
+    const canSubmit = reason === '' && !s.submitting;
+
+    const tabStyle = (active) => ({
+      flex: 1, padding: '11px 8px', border: 'none', cursor: 'pointer',
+      fontFamily: "'Mulish', sans-serif", fontSize: '14px', fontWeight: active ? 700 : 600,
+      letterSpacing: '0.01em',
+      background: active ? 'oklch(0.99 0.008 92)' : 'transparent',
+      color: active ? 'oklch(0.33 0.04 150)' : 'oklch(0.5 0.02 150)',
+      borderRadius: '9px', transition: 'all .15s',
+      boxShadow: active ? '0 1px 3px oklch(0.3 0.04 150 / 0.12)' : 'none',
+    });
+
+    const galleryItems = s.records.map((r) => {
+      const d = new Date(r.capturedAt);
+      const dateText = isNaN(d.getTime()) ? r.capturedAt
+        : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      const status = r.locationStatus || (r.lat != null ? (r.distanceFt != null && r.distanceFt <= this.config.radiusFeet ? 'verified' : 'out_of_range') : 'unverified');
+      const vMap = {
+        verified: { text: 'Location verified', bg: 'oklch(0.93 0.03 150)', fg: 'oklch(0.4 0.06 150)' },
+        out_of_range: { text: 'Outside zone · unverified', bg: 'oklch(0.94 0.04 55)', fg: 'oklch(0.5 0.09 50)' },
+        unverified: { text: 'Location unverified', bg: 'oklch(0.94 0.04 55)', fg: 'oklch(0.5 0.09 50)' },
+      };
+      const v = vMap[status];
+      return {
+        id: r.id, dataUrl: r.dataUrl,
+        imgRef: (node) => this.setImgSrc(node, r.dataUrl),
+        notes: r.notes || 'No notes added.',
+        dateText, distText: r.distanceFt != null ? r.distanceFt.toLocaleString() + ' ft' : 'No GPS',
+        storageText: r.storage === 's3' ? 'Cloud' : 'Not uploaded',
+        verifyText: v.text,
+        verifyStyle: { fontSize: '10.5px', fontWeight: 600, color: v.fg, background: v.bg, padding: '2px 7px', borderRadius: '6px', fontFamily: "'DM Mono', monospace" },
+        open: () => this.openLightbox(r.dataUrl),
+      };
+    });
+
+    return {
+      isReport: s.tab === 'report', isSightings: s.tab === 'sightings',
+      reportTabStyle: tabStyle(s.tab === 'report'),
+      sightingsTabStyle: tabStyle(s.tab === 'sightings'),
+      setReport: () => this.setTab('report'), setSightings: () => this.setTab('sightings'),
+
+      submitted: s.submitted, notSubmitted: !s.submitted, reset: this.reset,
+      storageMode: this.config.uploadEndpoint ? 'Cloud storage connected' : 'Demo mode · not saved',
+
+      showUploadZone: !hasPhoto,
+      hasPhoto, photoUrl: hasPhoto ? s.photo.dataUrl : '', photoImgRef: (node) => this.setImgSrc(node, hasPhoto ? s.photo.dataUrl : null),
+      onFileChange: this.onFileChange, removePhoto: this.removePhoto,
+      parsing: s.parsing,
+      showPass: hasPhoto && !s.parsing && hasGps && withinRange,
+      showFailRange: hasPhoto && !s.parsing && hasGps && !withinRange,
+      showNoGps: hasPhoto && !s.parsing && !hasGps,
+      showReadout: hasPhoto && !s.parsing && hasGps,
+      showMap: hasPhoto && !s.parsing,
+      showForm: hasPhoto && !s.parsing,
+      distanceText, latText: hasGps ? ex.lat.toFixed(6) : '—', lngText: hasGps ? ex.lng.toFixed(6) : '—',
+      reportMapRef: this.reportMapRef,
+
+      manualDate: s.manualDate, manualTime: s.manualTime,
+      setDate: this.setDate, setTime: this.setTime,
+      dateFromPhoto: s.dateSource === 'photo',
+      dateNeedsEntry: hasPhoto && s.dateSource !== 'photo',
+      notes: s.notes, setNotes: this.setNotes,
+
+      submit: this.submit, submitDisabled: !canSubmit, reason,
+      submitLabel: s.submitting ? 'Uploading…' : 'Submit sighting',
+      submitBtnStyle: {
+        width: '100%', padding: '15px', border: 'none', borderRadius: '12px',
+        fontFamily: "'Mulish', sans-serif", fontSize: '16px', fontWeight: 700, letterSpacing: '0.01em',
+        cursor: canSubmit ? 'pointer' : 'not-allowed',
+        background: canSubmit ? 'oklch(0.46 0.055 150)' : 'oklch(0.88 0.012 150)',
+        color: canSubmit ? 'oklch(0.99 0.01 150)' : 'oklch(0.62 0.015 150)',
+        transition: 'all .15s', boxShadow: canSubmit ? '0 2px 10px oklch(0.46 0.055 150 / 0.3)' : 'none',
+      },
+      hasError: !!s.lastError, lastError: s.lastError,
+
+      galleryGridStyle: tabStyle(s.galleryView === 'gallery'),
+      galleryMapStyle: tabStyle(s.galleryView === 'map'),
+      setGalleryGrid: () => this.setGalleryView('gallery'), setGalleryMapView: () => this.setGalleryView('map'),
+      isGalleryGrid: s.galleryView === 'gallery', isGalleryMap: s.galleryView === 'map',
+      galleryItems, hasRecords: galleryItems.length > 0, noRecords: galleryItems.length === 0,
+      recordCount: galleryItems.length, galleryMapRef: this.galleryMapRef,
+
+      hasLightbox: !!s.lightbox, lightbox: s.lightbox, lightboxImgRef: (node) => this.setImgSrc(node, s.lightbox), closeLightbox: this.closeLightbox,
+    };
+  }
+}
+</script>
+</body>
+</html>

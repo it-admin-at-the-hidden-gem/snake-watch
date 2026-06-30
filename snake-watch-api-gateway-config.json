@@ -1,0 +1,57 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "snake-watch-http-api",
+    "version" : "2026-06-30 02:08:34UTC"
+  },
+  "servers" : [ {
+    "url" : "https://7wstcuqfu5.execute-api.us-east-2.amazonaws.com/{basePath}",
+    "variables" : {
+      "basePath" : {
+        "default" : ""
+      }
+    }
+  } ],
+  "paths" : {
+    "/sightings" : {
+      "get" : {
+        "responses" : {
+          "default" : {
+            "description" : "Default response for GET /sightings"
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "payloadFormatVersion" : "2.0",
+          "type" : "aws_proxy",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:us-east-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-2:356325055182:function:snake-watch-list/invocations",
+          "connectionType" : "INTERNET"
+        }
+      }
+    },
+    "/upload" : {
+      "post" : {
+        "responses" : {
+          "default" : {
+            "description" : "Default response for POST /upload"
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "payloadFormatVersion" : "2.0",
+          "type" : "aws_proxy",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:us-east-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-2:356325055182:function:snake-watch-presign/invocations",
+          "connectionType" : "INTERNET"
+        }
+      }
+    }
+  },
+  "x-amazon-apigateway-cors" : {
+    "allowMethods" : [ "GET", "POST", "PUT" ],
+    "allowHeaders" : [ "content-type" ],
+    "maxAge" : 3000,
+    "allowCredentials" : false,
+    "allowOrigins" : [ "https://master.d12ujujkvzus0z.amplifyapp.com", "https://rest.edit.site", "https://thehiddengem.net" ]
+  },
+  "x-amazon-apigateway-importexport-version" : "1.0"
+}
