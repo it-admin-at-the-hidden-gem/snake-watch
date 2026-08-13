@@ -1,0 +1,29 @@
+{
+  "name": "snake-watch",
+  "version": "1.0.0",
+  "description": "AWS S3 photo upload form for snake sightings",
+  "main": "support.js",
+  "type": "module",
+  "scripts": {
+    "build": "cd dc-runtime && bun run build",
+    "dev": "vite",
+    "start": "vite preview"
+  },
+  "keywords": [
+    "aws",
+    "s3",
+    "lambda",
+    "photo-upload",
+    "react"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "vite": "^5.0.0"
+  }
+}
