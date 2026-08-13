@@ -338,29 +338,87 @@ class Component extends DCLogic {
   async extractGps(file) {
     const ok = (la, ln) => Number.isFinite(la) && Number.isFinite(ln) && !(la === 0 && ln === 0)
       && Math.abs(la) <= 90 && Math.abs(ln) <= 180;
+
+    const toNumber = (v) => {
+      if (v == null) return 0;
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string') {
+        const s = v.trim();
+        if (!s) return 0;
+        const direct = Number(s);
+        if (Number.isFinite(direct)) return direct;
+        const ratio = s.match(/^(-?\d+)\s*\/\s*(\d+)$/);
+        if (ratio) return Number(ratio[1]) / Number(ratio[2]);
+        return 0;
+      }
+      if (typeof v === 'object') {
+        if ('n' in v || 'numerator' in v) {
+          const num = Number(v.n ?? v.numerator ?? 0);
+          const den = Number(v.d ?? v.denominator ?? 1);
+          return den !== 0 ? num / den : 0;
+        }
+        if ('value' in v) return toNumber(v.value);
+      }
+      return Number(v) || 0;
+    };
+
+    const dec = (v) => {
+      if (v == null) return NaN;
+      if (Array.isArray(v)) {
+        if (v.length === 3) return toNumber(v[0]) + (toNumber(v[1]) / 60) + (toNumber(v[2]) / 3600);
+        if (v.length > 0) return toNumber(v[0]);
+        return NaN;
+      }
+      return toNumber(v);
+    };
+
+    const debugGps = (label, value) => {
+      try {
+        console.debug(`[snake-watch] ${label}`, value);
+      } catch (e) {}
+    };
+
     // 1) high-level helper
     try {
       const g = await exifr.gps(file);
+      debugGps('exifr.gps()', g);
       if (g && ok(g.latitude, g.longitude)) return { lat: g.latitude, lng: g.longitude };
-    } catch (e) {}
+    } catch (e) {
+      debugGps('exifr.gps() error', e);
+    }
     // 2) full parse with translated GPS block
     try {
       const o = await exifr.parse(file, { gps: true, translateValues: true });
+      debugGps('exifr.parse({ gps: true, translateValues: true })', o);
       if (o && ok(o.latitude, o.longitude)) return { lat: o.latitude, lng: o.longitude };
-    } catch (e) {}
+      if (o && o.GPSLatitude && o.GPSLongitude) {
+        const lat = dec(o.GPSLatitude), lng = dec(o.GPSLongitude);
+        debugGps('translated raw GPS values', { lat, lng, latRef: o.GPSLatitudeRef, lngRef: o.GPSLongitudeRef });
+        if (ok(lat, lng)) return { lat, lng };
+      }
+    } catch (e) {
+      debugGps('exifr.parse translated error', e);
+    }
     // 3) raw GPS tags -> manual degrees/minutes/seconds conversion
     try {
       const t = await exifr.parse(file, { gps: true, translateValues: false, reviveValues: false });
-      if (t && t.GPSLatitude && t.GPSLongitude) {
-        const dec = (v) => Array.isArray(v) ? (+v[0] || 0) + (+v[1] || 0) / 60 + (+v[2] || 0) / 3600 : +v;
-        let lat = dec(t.GPSLatitude), lng = dec(t.GPSLongitude);
+      debugGps('exifr.parse({ gps: true, translateValues: false, reviveValues: false })', t);
+      if (t && (t.GPSLatitude || t.GPSLongitude || t.latitude || t.longitude)) {
+        const latValue = t.GPSLatitude ?? t.latitude ?? null;
+        const lngValue = t.GPSLongitude ?? t.longitude ?? null;
+        let lat = dec(latValue), lng = dec(lngValue);
         const latRef = String(t.GPSLatitudeRef || 'N').toUpperCase();
         const lngRef = String(t.GPSLongitudeRef || 'E').toUpperCase();
-        if (latRef[0] === 'S') lat = -Math.abs(lat);
-        if (lngRef[0] === 'W') lng = -Math.abs(lng);
-        if (ok(lat, lng)) return { lat, lng };
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          if (latRef[0] === 'S') lat = -Math.abs(lat);
+          if (lngRef[0] === 'W') lng = -Math.abs(lng);
+          debugGps('manual raw GPS conversion', { lat, lng, latRef, lngRef });
+          if (ok(lat, lng)) return { lat, lng };
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      debugGps('exifr.parse raw error', e);
+    }
     return null;
   }
 
