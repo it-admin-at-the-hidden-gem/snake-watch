@@ -78,18 +78,30 @@
 
             <!-- upload zone -->
             <sc-if value="{{ showUploadZone }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- camera capture: location comes from the device at capture time (camera intents often drop GPS EXIF) -->
+              <label style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px; border-radius: 12px; background: oklch(0.46 0.055 150); color: oklch(0.99 0.01 150); font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 10px oklch(0.46 0.055 150 / 0.3);">
+                <input type="file" accept="image/*" capture="environment" onChange="{{ onCameraCapture }}" style="display: none;" />
+                <div style="width: 18px; height: 15px; border: 2px solid oklch(0.99 0.01 150); border-radius: 4px; position: relative;">
+                  <div style="position: absolute; width: 6px; height: 6px; border-radius: 50%; border: 2px solid oklch(0.99 0.01 150); top: 50%; left: 50%; transform: translate(-50%,-50%);"></div>
+                </div>
+                <span>Take photo now</span>
+              </label>
+              <div style="font-size: 12.5px; color: oklch(0.52 0.02 150); text-align: center; line-height: 1.45; margin-top: -4px;">At the property? This uses your phone's current location — the most reliable option on Android.</div>
               <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px 24px; background: oklch(0.99 0.008 92); border: 2px dashed oklch(0.82 0.025 150); border-radius: 16px; cursor: pointer; text-align: center;">
-                <input type="file" accept="image/*" onChange="{{ onFileChange }}" style="display: none;" />
+                <!-- accept includes a non-image type on purpose: with image-only accept, Android Chrome opens the system Photo Picker, which strips GPS EXIF. -->
+                <input type="file" accept="image/*,application/octet-stream" onChange="{{ onFileChange }}" style="display: none;" />
                 <div style="width: 52px; height: 52px; border-radius: 14px; background: oklch(0.93 0.03 150); display: flex; align-items: center; justify-content: center;">
                   <div style="width: 22px; height: 18px; border: 2.5px solid oklch(0.4 0.07 150); border-radius: 5px; position: relative;">
                     <div style="position: absolute; width: 8px; height: 8px; border-radius: 50%; border: 2.5px solid oklch(0.4 0.07 150); top: 50%; left: 50%; transform: translate(-50%,-50%);"></div>
                   </div>
                 </div>
                 <div>
-                  <div style="font-size: 16px; font-weight: 700; color: oklch(0.3 0.03 150); margin-bottom: 4px;">Add a snake photo</div>
+                  <div style="font-size: 16px; font-weight: 700; color: oklch(0.3 0.03 150); margin-bottom: 4px;">Or choose an existing photo</div>
                   <div style="font-size: 13px; color: oklch(0.52 0.02 150); line-height: 1.45; max-width: 300px;">Use a photo taken at the property with location turned on. We read the GPS automatically.</div>
                 </div>
               </label>
+              </div>
             </sc-if>
 
             <!-- photo preview + analysis -->
@@ -139,13 +151,17 @@
                     <div style="width: 22px; height: 22px; border-radius: 50%; background: oklch(0.55 0.13 45); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; line-height: 1;">!</div>
                     <div>
                       <div style="font-size: 14px; font-weight: 700; color: oklch(0.43 0.1 45);">No location found in this photo</div>
-                      <div style="font-size: 12.5px; color: oklch(0.46 0.08 45); margin-top: 3px; line-height: 1.45;">You can still submit — it'll be tagged <strong>location unverified</strong>. To verify the spot, turn your camera's location on and take a fresh photo at the property. (Screenshots and shared/downloaded images usually have no GPS.)</div>
+                      <div style="font-size: 12.5px; color: oklch(0.46 0.08 45); margin-top: 3px; line-height: 1.45;">You can still submit — it'll be tagged <strong>location unverified</strong>. To verify the spot, use <strong>Take photo now</strong> while you're at the property. (Screenshots and shared/downloaded images usually have no GPS.)</div>
+                      <sc-if value="{{ hasGeoError }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-size: 12.5px; font-weight: 600; color: oklch(0.43 0.1 45); margin-top: 6px; line-height: 1.45;">{{ geoError }}</div>
+                      </sc-if>
                     </div>
                   </div>
                 </sc-if>
 
                 <!-- coord readout -->
                 <sc-if value="{{ showReadout }}" hint-placeholder-val="{{ false }}">
+                  <div>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: oklch(0.9 0.014 92); border: 1px solid oklch(0.9 0.014 92); border-radius: 12px; overflow: hidden; font-family: 'DM Mono', monospace;">
                     <div style="background: oklch(0.99 0.008 92); padding: 11px 14px;">
                       <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: oklch(0.6 0.015 150); margin-bottom: 3px;">Latitude</div>
@@ -155,6 +171,8 @@
                       <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: oklch(0.6 0.015 150); margin-bottom: 3px;">Longitude</div>
                       <div style="font-size: 14px; font-weight: 500; color: oklch(0.3 0.02 150);">{{ lngText }}</div>
                     </div>
+                  </div>
+                  <div style="font-size: 11.5px; color: oklch(0.55 0.015 150); margin-top: 6px; font-family: 'DM Mono', monospace;">{{ locationSourceText }}</div>
                   </div>
                 </sc-if>
 
@@ -293,6 +311,7 @@ class Component extends DCLogic {
     galleryView: 'gallery',
     photo: null,
     exif: null,
+    geoError: '',
     parsing: false,
     manualDate: '',
     manualTime: '',
@@ -422,26 +441,55 @@ class Component extends DCLogic {
     return null;
   }
 
-  onFileChange = async (e) => {
+  // Resolves { lat, lng, accuracyM } or { error } — never rejects.
+  getDevicePosition() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) return resolve({ error: "This browser can't share your location." });
+      navigator.geolocation.getCurrentPosition(
+        (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude, accuracyM: p.coords.accuracy }),
+        (err) => resolve({ error: err.code === 1
+          ? 'Location permission was denied. Allow location for this site in your browser settings, then try again.'
+          : "Couldn't get your location. Make sure location is on, then try again." }),
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 },
+      );
+    });
+  }
+
+  onFileChange = (e) => this.handleFile(e, false);
+  onCameraCapture = (e) => this.handleFile(e, true);
+
+  handleFile = async (e, useDeviceLocation) => {
     const file = e.target.files && e.target.files[0];
+    e.target.value = ''; // allow picking/taking the same photo again
     if (!file) return;
-    this.setState({ parsing: true, photo: null, exif: null, submitted: false, lastError: '' });
+    // Ask for the device position right away, while the person is still standing where they took the photo.
+    const devicePos = useDeviceLocation ? this.getDevicePosition() : null;
+    this.setState({ parsing: true, photo: null, exif: null, geoError: '', submitted: false, lastError: '' });
     try {
       const dataUrl = await this.downscale(file);
-      let coords = null, dateObj = null;
+      let coords = null, dateObj = null, geoError = '';
       if (typeof exifr !== 'undefined') {
         coords = await this.extractGps(file);
+        if (coords) coords.source = 'photo';
         try {
           const meta = await exifr.parse(file, ['DateTimeOriginal', 'CreateDate', 'ModifyDate']);
           if (meta) dateObj = meta.DateTimeOriginal || meta.CreateDate || meta.ModifyDate || null;
         } catch (err) {}
       }
-      let exif = { lat: null, lng: null, distanceFt: null, withinRange: false };
+      // Photo GPS wins when present; otherwise fall back to where the device is now.
+      if (devicePos) {
+        const pos = await devicePos;
+        if (!coords && !pos.error) coords = { lat: pos.lat, lng: pos.lng, accuracyM: pos.accuracyM, source: 'device' };
+        else if (!coords) geoError = pos.error;
+      }
+      if (useDeviceLocation && !dateObj) dateObj = new Date(); // just taken
+      let exif = { lat: null, lng: null, distanceFt: null, withinRange: false, source: null, accuracyM: null };
       if (coords) {
         const distanceFt = this.distanceFeet(coords.lat, coords.lng);
-        exif = { lat: coords.lat, lng: coords.lng, distanceFt, withinRange: distanceFt <= this.config.radiusFeet };
+        exif = { lat: coords.lat, lng: coords.lng, distanceFt, withinRange: distanceFt <= this.config.radiusFeet,
+          source: coords.source, accuracyM: coords.accuracyM ?? null };
       }
-      const upd = { photo: { dataUrl, name: file.name, file, type: file.type || 'image/jpeg' }, exif, parsing: false };
+      const upd = { photo: { dataUrl, name: file.name, file, type: file.type || 'image/jpeg' }, exif, geoError, parsing: false };
       if (dateObj && !isNaN(dateObj.getTime())) {
         upd.manualDate = this.fmtDate(dateObj);
         upd.manualTime = this.fmtTime(dateObj);
@@ -474,7 +522,7 @@ class Component extends DCLogic {
     });
   }
 
-  removePhoto = () => this.setState({ photo: null, exif: null, lastError: '', dateSource: null }, () => this.refreshReportMap());
+  removePhoto = () => this.setState({ photo: null, exif: null, geoError: '', lastError: '', dateSource: null }, () => this.refreshReportMap());
 
   reportMapRef = (node) => {
     if (node) { this.initMap(node, 'report'); }
@@ -562,6 +610,7 @@ class Component extends DCLogic {
         notes: record.notes, lat: record.lat, lng: record.lng,
         capturedAt: record.capturedAt, distanceFt: record.distanceFt,
         locationStatus: record.locationStatus, locationVerified: record.locationVerified,
+        locationSource: record.locationSource, accuracyM: record.accuracyM,
       } }),
     });
     if (!res.ok) throw new Error('presign failed');
@@ -588,6 +637,8 @@ class Component extends DCLogic {
       lat: hasCoords ? s.exif.lat : null, lng: hasCoords ? s.exif.lng : null,
       distanceFt: hasCoords ? Math.round(s.exif.distanceFt) : null,
       locationStatus, locationVerified: locationStatus === 'verified',
+      locationSource: hasCoords ? s.exif.source : null, // 'photo' (EXIF) or 'device' (geolocation at capture)
+      accuracyM: hasCoords && s.exif.accuracyM != null ? Math.round(s.exif.accuracyM) : null,
       capturedAt: s.manualDate + 'T' + s.manualTime,
       notes: s.notes.trim(),
       dateSource: s.dateSource,
@@ -605,7 +656,7 @@ class Component extends DCLogic {
     this.setState({ records, submitting: false, submitted: true, lastError: warn });
   };
 
-  reset = () => this.setState({ photo: null, exif: null, notes: '', manualDate: '', manualTime: '', dateSource: null, submitted: false, lastError: '' });
+  reset = () => this.setState({ photo: null, exif: null, geoError: '', notes: '', manualDate: '', manualTime: '', dateSource: null, submitted: false, lastError: '' });
 
   openLightbox = (url) => this.setState({ lightbox: url });
   closeLightbox = () => this.setState({ lightbox: null });
@@ -649,7 +700,7 @@ class Component extends DCLogic {
         notes: r.notes || 'No notes added.',
         dateText, distText: r.distanceFt != null ? r.distanceFt.toLocaleString() + ' ft' : 'No GPS',
         storageText: r.storage === 's3' ? 'Cloud' : 'Not uploaded',
-        verifyText: v.text,
+        verifyText: status === 'verified' && r.locationSource === 'device' ? 'Verified · device GPS' : v.text,
         verifyStyle: { fontSize: '10.5px', fontWeight: 600, color: v.fg, background: v.bg, padding: '2px 7px', borderRadius: '6px', fontFamily: "'DM Mono', monospace" },
         open: () => this.openLightbox(r.dataUrl),
       };
@@ -666,7 +717,11 @@ class Component extends DCLogic {
 
       showUploadZone: !hasPhoto,
       hasPhoto, photoUrl: hasPhoto ? s.photo.dataUrl : '', photoImgRef: (node) => this.setImgSrc(node, hasPhoto ? s.photo.dataUrl : null),
-      onFileChange: this.onFileChange, removePhoto: this.removePhoto,
+      onFileChange: this.onFileChange, onCameraCapture: this.onCameraCapture, removePhoto: this.removePhoto,
+      hasGeoError: !!s.geoError, geoError: s.geoError,
+      locationSourceText: !hasGps ? '' : ex.source === 'device'
+        ? 'From your device location' + (ex.accuracyM != null ? ' · ±' + Math.round(ex.accuracyM * 3.28084).toLocaleString() + ' ft' : '')
+        : 'From photo GPS',
       parsing: s.parsing,
       showPass: hasPhoto && !s.parsing && hasGps && withinRange,
       showFailRange: hasPhoto && !s.parsing && hasGps && !withinRange,
